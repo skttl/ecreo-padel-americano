@@ -1,0 +1,11 @@
+{
+  "name": "americreo",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "node build.js",
+    "start": "node server.js",
+    "test": "node --test"
+  }
+}

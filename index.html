@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="da">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Americreo · Ecreo padel</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+  <header class="header"><div class="brand">ecreo<span>/</span>padel <small>Americreo</small></div><div id="save-status" role="status">Klar</div></header>
+  <p id="storage-error" class="error storage-error" role="alert" hidden></p>
+  <main id="setup" class="setup">
+    <div class="setup-heading"><p class="eyebrow">Klar til banen</p><h1>Start en turnering</h1><p>Ét navn pr. linje. Vi fordeler hold og pauser fra runde til runde.</p></div>
+    <form id="setup-form" novalidate>
+      <div class="names-field"><label for="names">Deltagere</label><textarea id="names" name="names" rows="9" placeholder="Anna&#10;Bo&#10;Clara&#10;Dan&#10;Eva&#10;Finn" aria-describedby="names-error"></textarea><p id="names-error" class="error field-error" hidden></p></div>
+      <div class="settings"><label for="doubles">Doublebaner</label><input id="doubles" name="doubles" type="text" inputmode="numeric" value="1" aria-describedby="doubles-error"><p id="doubles-error" class="error field-error" hidden></p><label for="singles">Singlebaner</label><input id="singles" name="singles" type="text" inputmode="numeric" value="1" aria-describedby="singles-error"><p id="singles-error" class="error field-error" hidden></p><label for="points">Point pr. kamp</label><input id="points" name="points" type="text" inputmode="numeric" value="16" aria-describedby="points-error"><p id="points-error" class="error field-error" hidden></p><p class="muted">Vinderen får 10 % af kampens pointtal i bonus, rundet op.</p><button class="primary" id="start" type="submit">Start turnering →</button></div>
+    </form>
+  </main>
+  <main id="game" class="game" hidden>
+    <section class="round-strip"><div><p class="eyebrow">På banen nu</p><h1 id="round-title">Runde 1</h1></div><div id="round-info" class="round-info"></div><div class="round-actions"><button id="history-button">Historik</button><button id="new-button">Ny turnering</button></div></section>
+    <p id="round-notice" class="notice" hidden></p>
+    <div class="workspace"><section class="matches-panel" aria-label="Kampe"><div id="history-heading" class="history-heading" hidden><div><h2>Tidligere runder</h2><p class="muted">Ret resultater her. Eksisterende hold ændres ikke.</p></div><button id="close-history">Tilbage til aktuelle kampe</button></div><div id="matches" class="matches"></div></section><aside class="standings-panel"><div class="panel-heading"><h2>Stilling</h2><span id="player-count" class="muted"></span></div><p class="ranking-note">Placering efter point pr. spillet kamp.</p><div class="table-scroll"><table><caption class="sr-only">Individuel stilling</caption><thead><tr><th scope="col">#</th><th scope="col">Deltager</th><th scope="col">Point</th><th scope="col"><abbr title="Spillede kampe">K</abbr></th><th scope="col"><abbr title="Sejre">V</abbr></th><th scope="col"><abbr title="Singlekampe">S</abbr></th></tr></thead><tbody id="standings"></tbody></table></div><p class="table-key">K kampe · V sejre · S single</p></aside></div>
+    <footer class="game-footer"><div class="rest-section"><span class="eyebrow">Pause</span><div id="resting" class="resting"></div></div><div class="next-section"><p id="next-explanation" role="status"></p><button id="next" class="primary">Næste runde →</button></div></footer>
+  </main>
+  <div class="reset-row"><button id="reset-button">Nulstil gemte data</button><button id="cancel-new" hidden>Tilbage til turnering</button></div>
+</body>
+</html>
