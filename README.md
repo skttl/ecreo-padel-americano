@@ -16,6 +16,8 @@ Makkerrotation forsøger nye par først. En nødvendig gentagelse vises på rund
 
 ## GitHub Pages
 
+App: [Americreo](https://skttl.github.io/ecreo-padel-americano/). Kildekode: [skttl/ecreo-padel-americano](https://github.com/skttl/ecreo-padel-americano).
+
 `npm run build` samler kun appens syv offentlige filer i `dist/`. Workflowet `.github/workflows/pages.yml` kører alle tests, bygger og deployer ved hvert push til `master`; det kan også startes manuelt fra GitHub Actions. Pages skal bruge **GitHub Actions** som kilde. Ingen pakkeinstallation er nødvendig.
 
 Den hostede app og localhost har hver deres browserlagring. En eksisterende lokal turnering flyttes ikke automatisk til Pages-adressen.

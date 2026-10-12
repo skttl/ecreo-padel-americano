@@ -1,5 +1,9 @@
 # Verifikation — 12. oktober 2026
 
+## GitHub Pages
+
+Efter hostingopsætningen bestod den samlede suite med 215 tests, 0 fejl og 0 oversprungne tests på 110 sekunder. `npm run build` og en assert-baseret kontrol verificerede de syv offentlige filer samt relative app-stier under `/ecreo-padel-americano/`. Workflowet bestod checksum-verificeret actionlint 1.7.7. Workflowet kører tests, bygger og deployer automatisk ved push til `master`. Repo og Pages er offentlige efter udtrykkelig brugergodkendelse. Browserens lagrede turneringsdata indgår ikke i repo eller build.
+
 ## Opfølgning: Americreo og makkerreglen
 
 Appens navn er ændret til Americreo uden ændring af lagringsnøglen eller gemte turneringer. Navnet er verificeret i browserens titel og header.
