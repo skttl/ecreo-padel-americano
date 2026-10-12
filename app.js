@@ -59,12 +59,18 @@ function updateNext() {
 }
 
 function renderStandings() {
+  const mixedCourts = state.tournament.courts.some(court => court.type === 'double')
+    && state.tournament.courts.some(court => court.type === 'single');
+  $('double-column').hidden = !mixedCourts;
+  $('table-key').textContent = `K kampe · V sejre${mixedCourts ? ' · D double' : ''} · S single`;
   const body = $('standings'); body.replaceChildren();
   for (const row of standings(state.tournament)) {
     const tr = element('tr');
     tr.append(element('td', '', row.rank));
     const name = element('th', '', row.name); name.scope = 'row'; tr.append(name);
-    for (const value of [row.points, row.played, row.wins, row.singles]) tr.append(element('td', '', value));
+    for (const value of [row.points, row.played, row.wins]) tr.append(element('td', '', value));
+    const doubles = element('td', '', row.played - row.singles); doubles.hidden = !mixedCourts; tr.append(doubles);
+    tr.append(element('td', '', row.singles));
     body.append(tr);
   }
   $('player-count').textContent = `${state.tournament.players.length} deltagere`;
