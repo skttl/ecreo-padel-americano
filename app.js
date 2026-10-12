@@ -53,6 +53,7 @@ function complete(match) {
 }
 
 function updateNext() {
+  $('next').parentElement.hidden = viewingHistory || viewingStatistics;
   const tournament = state.tournament;
   const incomplete = tournament?.rounds.some(round => round.matches.some(match => !complete(match)));
   $('next').disabled = blocked || pending || viewingHistory || viewingStatistics || !tournament || incomplete;
