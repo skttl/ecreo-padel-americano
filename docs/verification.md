@@ -1,5 +1,11 @@
 # Verifikation — 12. oktober 2026
 
+## Statistikfanen
+
+Alle syv godkendte statistikker er implementeret: hyppigste og bedste makkerpar, makkerdækning, fair fordeling, hyppigste modstandere, form og tætteste kampe. Beregningerne bruger eksisterende turneringsdata uden nyt lagringsformat. Otte målrettede tests dækker tomme resultater, bonus og rettelser, modstandere i begge banetyper, planlagt makkerdækning/gentagelser, kamp-/pausefordeling, form/sejrsstimer, tætte kampe og dansk navnesortering. Den samlede suite bestod med 223 tests, 0 fejl og 0 oversprungne tests på 118 sekunder.
+
+Browserkontrol verificerede alle syv sektioner, tomme resultater, makkerdækning før scoring, 9–7/8–8, historisk korrektion, Escape/fokus og synlig stilling ved 1280 × 720 og 390 × 844 uden sideoverflow. Statistikpanelet ruller internt. Uafhængigt review af UI og beregninger havde ingen udestående fund efter rettelse af fokus ved worker-opdatering. Ingen faktiske browsercrashes blev testet.
+
 ## GitHub Pages
 
 Efter hostingopsætningen bestod den samlede suite med 215 tests, 0 fejl og 0 oversprungne tests på 110 sekunder. `npm run build` og en assert-baseret kontrol verificerede de syv offentlige filer samt relative app-stier under `/ecreo-padel-americano/`. Workflowet bestod checksum-verificeret actionlint 1.7.7. Workflowet kører tests, bygger og deployer automatisk ved push til `master`. Repo og Pages er offentlige efter udtrykkelig brugergodkendelse. Browserens lagrede turneringsdata indgår ikke i repo eller build.

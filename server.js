@@ -8,6 +8,7 @@ const assets = new Map([
   ['index.html', 'text/html'], ['styles.css', 'text/css'], ['app.js', 'text/javascript'],
   ['tournament.js', 'text/javascript'], ['scheduler.js', 'text/javascript'],
   ['scheduler-worker.js', 'text/javascript'], ['storage.js', 'text/javascript'],
+  ['statistics.js', 'text/javascript'],
 ]);
 
 export function createStaticServer() {

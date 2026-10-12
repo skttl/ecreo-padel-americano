@@ -1,5 +1,6 @@
 import { createTournament, scoreFromInput, validateScore, standings, history } from './tournament.js';
 import { loadState, saveState, clearState } from './storage.js';
+import { statistics } from './statistics.js';
 
 const $ = id => document.getElementById(id);
 const freshState = () => ({ version: 1, draft: { names: '', doubles: '1', singles: '1', points: '16' }, tournament: null });
@@ -9,6 +10,7 @@ let pending = false;
 let worker = null;
 let generationError = '';
 let viewingHistory = false;
+let viewingStatistics = false;
 
 function showStorageError(message) {
   $('storage-error').textContent = message;
@@ -53,9 +55,9 @@ function complete(match) {
 function updateNext() {
   const tournament = state.tournament;
   const incomplete = tournament?.rounds.some(round => round.matches.some(match => !complete(match)));
-  $('next').disabled = blocked || pending || viewingHistory || !tournament || incomplete;
+  $('next').disabled = blocked || pending || viewingHistory || viewingStatistics || !tournament || incomplete;
   $('next').textContent = pending ? 'Finder hold…' : generationError ? 'Prøv næste runde igen →' : 'Næste runde →';
-  $('next-explanation').textContent = pending ? 'Finder en hel runde med den bedst mulige fordeling.' : viewingHistory ? 'Gå tilbage til aktuelle kampe før næste runde.' : generationError || (incomplete ? 'Udfyld eller ret alle scorefelter før næste runde.' : 'Alle resultater er klar.');
+  $('next-explanation').textContent = pending ? 'Finder en hel runde med den bedst mulige fordeling.' : viewingHistory || viewingStatistics ? 'Gå tilbage til aktuelle kampe før næste runde.' : generationError || (incomplete ? 'Udfyld eller ret alle scorefelter før næste runde.' : 'Alle resultater er klar.');
 }
 
 function renderStandings() {
@@ -124,6 +126,8 @@ function courtCard(court, match, round) {
 
 function renderGame() {
   viewingHistory = false;
+  viewingStatistics = false;
+  $('statistics-button').setAttribute('aria-pressed', 'false');
   $('history-heading').hidden = true;
   const tournament = state.tournament;
   $('setup').hidden = true; $('game').hidden = false; $('cancel-new').hidden = true;
@@ -157,8 +161,8 @@ function generateNext() {
       if (worker !== activeWorker || state.tournament !== tournament) return;
       if (data.error || !data.round) { finish(data.error || 'Runden kunne ikke beregnes. Prøv igen.'); return; }
       tournament.rounds.push(data.round); finish(); persist();
-      if ($('setup').hidden && !viewingHistory) renderGame();
-      else renderStandings();
+      if ($('setup').hidden && !viewingHistory && !viewingStatistics) renderGame();
+      else { renderStandings(); if (viewingStatistics) renderStatistics(); }
     };
     activeWorker.onerror = event => { event.preventDefault(); if (worker === activeWorker) finish('Runden kunne ikke beregnes. Prøv igen.'); };
     activeWorker.onmessageerror = () => { if (worker === activeWorker) finish('Runden kunne ikke læses. Prøv igen.'); };
@@ -204,6 +208,7 @@ $('reset-button').addEventListener('click', () => {
   $('start').disabled = false; persist(); $('names').focus();
 });
 $('history-button').addEventListener('click', () => {
+  viewingStatistics = false; $('statistics-button').setAttribute('aria-pressed', 'false');
   viewingHistory = true; $('history-heading').hidden = false;
   const container = $('matches'); container.replaceChildren();
   const rounds = state.tournament.rounds.slice(0, -1).reverse();
@@ -217,7 +222,51 @@ $('history-button').addEventListener('click', () => {
 });
 function closeHistory() { renderGame(); $('history-button').focus(); }
 $('close-history').addEventListener('click', closeHistory);
+
+function renderStatistics() {
+  const restoreFocus = document.activeElement?.id === 'close-statistics';
+  const data = statistics(state.tournament);
+  const container = $('matches'); container.replaceChildren();
+  const heading = element('div', 'history-heading');
+  heading.append(element('h2', '', 'Statistik'));
+  const close = element('button', '', 'Tilbage til aktuelle kampe'); close.id = 'close-statistics';
+  close.addEventListener('click', closeStatistics); heading.append(close); container.append(heading);
+  container.append(element('p', 'muted stats-note', 'Resultater tæller registrerede kampe, inklusive vinderbonus. Makkerdækning tæller også planlagte par. Pauser tæller kun i runder med alle resultater registreret.'));
+  function section(title, note, headers, rows) {
+    const card = element('section', 'stats-card'); card.append(element('h3', '', title));
+    if (note) card.append(element('p', 'muted stats-note', note));
+    if (!rows.length) card.append(element('p', 'muted', 'Ingen registrerede kampe endnu.'));
+    else {
+      const scroll = element('div', 'stats-scroll'); const table = element('table');
+      const caption = element('caption', 'sr-only', title); table.append(caption);
+      const head = element('thead'); const labels = element('tr');
+      headers.forEach(text => { const cell = element('th', '', text); cell.scope = 'col'; labels.append(cell); }); head.append(labels); table.append(head);
+      const body = element('tbody');
+      rows.forEach(values => { const row = element('tr'); values.forEach((value, index) => { const cell = element(index ? 'td' : 'th', '', value); if (!index) cell.scope = 'row'; row.append(cell); }); body.append(row); });
+      table.append(body); scroll.append(table); card.append(scroll);
+    }
+    container.append(card);
+  }
+  const pairName = pair => pair.names.join(' + ');
+  const average = value => value.toLocaleString('da', { maximumFractionDigits: 2 });
+  section('Hyppigste makkerpar', '', ['Makkerpar', 'Kampe'], data.partners.map(pair => [pairName(pair), pair.played]));
+  const best = [...data.partners].sort((a, b) => b.pointsPerMatch - a.pointsPerMatch || b.played - a.played || pairName(a).localeCompare(pairName(b), 'da'));
+  section('Bedste makkerpar', 'Sorteret efter point pr. kamp. Vurder gennemsnittet sammen med antal kampe.', ['Makkerpar', 'Point/kamp', 'Sejre', 'Kampe'], best.map(pair => [pairName(pair), average(pair.pointsPerMatch), `${Math.round(pair.winRate * 100)} %`, pair.played]));
+  section('Makkerdækning', 'Gentagelser tælles pr. spiller, når et allerede brugt makkerpar planlægges igen.', ['Spiller', 'Makkere', 'Gentagelser', 'Mangler'], data.coverage.map(row => [row.name, `${row.unique}/${row.total}`, row.repeats, row.missing.join(', ') || 'Ingen']));
+  section('Fair fordeling', `Største forskel: ${data.gaps.played} kampe · ${data.gaps.doubles} double · ${data.gaps.singles} single · ${data.gaps.rested} pauser.`, ['Spiller', 'Kampe', 'Double', 'Single', 'Pauser'], data.fairness.map(row => [row.name, row.played, row.doubles, row.singles, row.rested]));
+  section('Hyppigste modstandere', 'Individuelle møder på tværs af hold, inklusive singlekampe.', ['Spillerpar', 'Møder'], data.opponents.map(pair => [pair.names.join(' mod '), pair.played]));
+  section('Form', 'Seneste fem kampe, ældste først. V = sejr, U = uafgjort, T = tab. Pauser bryder ikke en sejrsstime.', ['Spiller', 'Seneste kampe (point)', 'Længste sejrsstime'], data.form.map(row => [row.name, row.recent.map(match => `R${match.round} ${match.result} (${match.points})`).join(' · ') || 'Ingen kampe', row.longestWinStreak]));
+  section('Tætteste kampe', 'Mindste pointforskel først; nyeste runde først ved samme forskel.', ['Kamp', 'Hold', 'Resultat', 'Forskel'], data.closest.map(match => [`R${match.round} · Bane ${match.court}`, match.teams.map(team => team.join(' + ')).join(' mod '), match.score.join('–'), match.difference]));
+  if (restoreFocus) close.focus();
+}
+function closeStatistics() { renderGame(); $('statistics-button').focus(); }
+$('statistics-button').addEventListener('click', () => {
+  viewingHistory = false; viewingStatistics = true;
+  $('history-heading').hidden = true; $('statistics-button').setAttribute('aria-pressed', 'true');
+  renderStatistics(); updateNext(); $('close-statistics').focus();
+});
 document.addEventListener('keydown', event => {
   if (event.key === 'Escape' && viewingHistory && !$('game').hidden) { event.preventDefault(); closeHistory(); }
+  else if (event.key === 'Escape' && viewingStatistics && !$('game').hidden) { event.preventDefault(); closeStatistics(); }
 });
 if (state.tournament) renderGame();

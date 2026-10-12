@@ -14,11 +14,15 @@ Stillingen viser totalpoint, kampe, sejre og singlekampe. Placering beregnes eft
 
 Makkerrotation forsøger nye par først. En nødvendig gentagelse vises på runden. Makkerpausen forsøges med 3, 2 og 1 mellemliggende spillede kampe. Pauser tæller ikke. Efter fuld makkerdækning balanceres hold efter resultater. En umulig runde giver en fejl og mulighed for at prøve igen.
 
+## Statistik
+
+Statistikknappen viser hyppigste og bedste makkerpar, makkerdækning, fair fordeling, hyppigste modstandere, form og tætteste kampe. Stillingen forbliver synlig. Resultatstatistik bruger registrerede scores inklusive bonus; makkerdækning tæller også planlagte par. Pauser tælles først, når alle resultater i en runde er registreret. Historiske rettelser genberegner statistikken. Escape eller tilbageknappen viser aktuelle kampe igen.
+
 ## GitHub Pages
 
 App: [Americreo](https://skttl.github.io/ecreo-padel-americano/). Kildekode: [skttl/ecreo-padel-americano](https://github.com/skttl/ecreo-padel-americano).
 
-`npm run build` samler kun appens syv offentlige filer i `dist/`. Workflowet `.github/workflows/pages.yml` kører alle tests, bygger og deployer ved hvert push til `master`; det kan også startes manuelt fra GitHub Actions. Pages skal bruge **GitHub Actions** som kilde. Ingen pakkeinstallation er nødvendig.
+`npm run build` samler kun appens otte offentlige filer i `dist/`. Workflowet `.github/workflows/pages.yml` kører alle tests, bygger og deployer ved hvert push til `master`; det kan også startes manuelt fra GitHub Actions. Pages skal bruge **GitHub Actions** som kilde. Ingen pakkeinstallation er nødvendig.
 
 Den hostede app og localhost har hver deres browserlagring. En eksisterende lokal turnering flyttes ikke automatisk til Pages-adressen.
 
